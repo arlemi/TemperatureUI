@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <!-- include jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <!-- Simple CSS to center the info in the middle of the page -->
+    <style type="text/css">
+    .center {
+        position: absolute;
+        width: 200px;
+        height: 100px;
+        top: 50%;
+        left: 50%;
+        margin-left: -100px;
+        margin-top: -50px; 
+        font-size: 500%;
+    }
+    </style>
+    <script type="text/javascript">
+        // wait for the body content to be loaded
+        $(document).ready(function() {
+            // set variable valueTemp to the content of the div#valueTemp
+            var valueTemp = $('#valueTemp').text()
+            // call function backgroundSwitch with valueTemp as a parameter
+            backgroundSwitch(valueTemp)
+            
+            /***
+            * This functions takes a temperature value as a parameter
+            * checks whether it is less or equal or more than 30 degrees
+            * changes the background color from this condition
+            * creates a sentence from this condition
+            * sends this sentence as a parameter to synthesizeRequest function
+            ***/
+            function backgroundSwitch(valueTemp) {
+                var textToSay = "La température est de " + valueTemp + "degrés. "
+                if(valueTemp <= 30) {
+                    $('body').css('background-color','#0000FF')
+                    textToSay += "Il fait bon !"
+                } else if(valueTemp > 30) {
+                    $('body').css('background-color','#FF0000')
+                    textToSay += "Il fait chaud !"
+                }
+                synthesizeRequest(textToSay)
+            }
+
+            /***
+            * This functions takes a text as a parameter
+            * creates a URL from this text that will call the flow created in Node-RED with text to speech
+            * assign this URL to an audio player on the page
+            * plays it
+            ***/
+            function synthesizeRequest(text) {
+                var audio = document.getElementById('audio')
+                var theUrl = "/talk/sayit?text_to_say="+ text
+                var xmlHttp = new XMLHttpRequest()
+                xmlHttp.open("GET", theUrl, false)
+                xmlHttp.send(null)
+                audio.src = theUrl
+                audio.controls = true
+                audio.play()
+                return true
+            }
+        })
+    </script>
+  </head>
+  <body>
+    <div class="center">
+        <!-- {{payload}} is the content of msg.payload passed as an input to the node -->
+        <div id="valueTemp">{{payload}}</div>
+        <!-- audio tag to display the audio player on the web page -->
+        <audio id="audio">
+        Your browser does not support the audio element.
+        </audio>
+    </div>
+  </body>
+</html>
