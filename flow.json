@@ -1,0 +1,233 @@
+[
+    {
+        "id": "3e77d543.c1882a",
+        "type": "ibmiot in",
+        "z": "d483fd97.3aae6",
+        "authentication": "quickstart",
+        "apiKey": "",
+        "inputType": "evt",
+        "deviceId": "320370060025",
+        "applicationId": "",
+        "deviceType": "+",
+        "eventType": "+",
+        "commandType": "",
+        "format": "json",
+        "name": "IBM IoT App In",
+        "service": "quickstart",
+        "allDevices": false,
+        "allApplications": false,
+        "allDeviceTypes": true,
+        "allEvents": true,
+        "allCommands": false,
+        "allFormats": false,
+        "x": 120,
+        "y": 440,
+        "wires": [
+            [
+                "ae0082ac.51ff8"
+            ]
+        ]
+    },
+    {
+        "id": "ae0082ac.51ff8",
+        "type": "function",
+        "z": "d483fd97.3aae6",
+        "name": "Set temperature",
+        "func": "global.set('tempValue',msg.payload.d.temp)\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 320,
+        "y": 440,
+        "wires": [
+            [
+                "5dad02b7.a252fc"
+            ]
+        ]
+    },
+    {
+        "id": "5dad02b7.a252fc",
+        "type": "debug",
+        "z": "d483fd97.3aae6",
+        "name": "",
+        "active": true,
+        "complete": "payload",
+        "x": 530,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "278fe161.8c49ee",
+        "type": "http in",
+        "z": "d483fd97.3aae6",
+        "name": "",
+        "url": "/temp",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 520,
+        "wires": [
+            [
+                "bd5c6b15.5e3928"
+            ]
+        ]
+    },
+    {
+        "id": "6e12aa0c.7eedd4",
+        "type": "http response",
+        "z": "d483fd97.3aae6",
+        "name": "",
+        "x": 770,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "b27c60dc.921b",
+        "type": "template",
+        "z": "d483fd97.3aae6",
+        "name": "temperature template",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "<html>\n  <head>\n    <!-- include jQuery -->\n    <script src=\"https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js\"></script>\n    <!-- Simple CSS to center the info in the middle of the page -->\n    <style type=\"text/css\">\n    .center {\n        position: absolute;\n        width: 200px;\n        height: 100px;\n        top: 50%;\n        left: 50%;\n        margin-left: -100px;\n        margin-top: -50px; \n        font-size: 500%;\n    }\n    </style>\n    <script type=\"text/javascript\">\n        // wait for the body content to be loaded\n        $(document).ready(function() {\n            // set variable valueTemp to the content of the div#valueTemp\n            var valueTemp = $('#valueTemp').text()\n            // call function backgroundSwitch with valueTemp as a parameter\n            backgroundSwitch(valueTemp)\n            \n            /***\n            * This functions takes a temperature value as a parameter\n            * checks whether it is less or equal or more than 30 degrees\n            * creates a sentence from this condition\n            * sends this sentence as a parameter to synthesizeRequest function\n            ***/\n            function backgroundSwitch(valueTemp) {\n                var textToSay = \"La température est de \" + valueTemp + \"degrés. \"\n                if(valueTemp <= 30) {\n                    $('body').css('background-color','#0000FF')\n                    textToSay += \"Il fait bon !\"\n                } else if(valueTemp > 30) {\n                    $('body').css('background-color','#FF0000')\n                    textToSay += \"Il fait chaud !\"\n                }\n                synthesizeRequest(textToSay)\n            }\n\n            /***\n            * This functions takes a text as a parameter\n            * creates a URL from this text that will call the flow created in Node-RED with text to speech\n            * assign this URL to an audio player on the page\n            * plays it\n            ***/\n            function synthesizeRequest(text) {\n                var audio = document.getElementById('audio')\n                var theUrl = \"/talk/sayit?text_to_say=\"+ text\n                var xmlHttp = new XMLHttpRequest()\n                xmlHttp.open(\"GET\", theUrl, false)\n                xmlHttp.send(null)\n                audio.src = theUrl\n                audio.controls = true\n                audio.play()\n                return true\n            }\n        })\n    </script>\n  </head>\n  <body>\n    <div class=\"center\">\n        <!-- {{payload}} is the content of msg.payload passed as an input to the node -->\n        <div id=\"valueTemp\">{{payload}}</div>\n        <!-- audio tag to display the audio player on the web page -->\n        <audio id=\"audio\">\n        Your browser does not support the audio element.\n        </audio>\n    </div>\n  </body>\n</html>\n",
+        "x": 560,
+        "y": 520,
+        "wires": [
+            [
+                "6e12aa0c.7eedd4"
+            ]
+        ]
+    },
+    {
+        "id": "33d145e5.48d2aa",
+        "type": "change",
+        "z": "d483fd97.3aae6",
+        "name": "text to payload",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "pt": "msg",
+                "to": "payload.text_to_say",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "text_to_say",
+                "pt": "msg",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 320,
+        "y": 600,
+        "wires": [
+            [
+                "7d75da4a.1827d4"
+            ]
+        ]
+    },
+    {
+        "id": "7bbd0fc.2e983f",
+        "type": "http in",
+        "z": "d483fd97.3aae6",
+        "name": "",
+        "url": "/talk/sayit",
+        "method": "get",
+        "swaggerDoc": "",
+        "x": 120,
+        "y": 600,
+        "wires": [
+            [
+                "33d145e5.48d2aa"
+            ]
+        ]
+    },
+    {
+        "id": "5cbf2b02.b77594",
+        "type": "http response",
+        "z": "d483fd97.3aae6",
+        "name": "Reply Speech binary",
+        "x": 1220,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "7d75da4a.1827d4",
+        "type": "watson-text-to-speech",
+        "z": "d483fd97.3aae6",
+        "name": "",
+        "lang": "french",
+        "voice": "fr-FR_ReneeVoice",
+        "format": "audio/wav",
+        "x": 540,
+        "y": 600,
+        "wires": [
+            [
+                "fef92107.0fcdc"
+            ]
+        ]
+    },
+    {
+        "id": "fef92107.0fcdc",
+        "type": "change",
+        "z": "d483fd97.3aae6",
+        "name": "Speech to payload",
+        "rules": [
+            {
+                "t": "set",
+                "p": "payload",
+                "to": "msg.speech"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 770,
+        "y": 600,
+        "wires": [
+            [
+                "d26fe22b.ad15b"
+            ]
+        ]
+    },
+    {
+        "id": "d26fe22b.ad15b",
+        "type": "function",
+        "z": "d483fd97.3aae6",
+        "name": "Set headers",
+        "func": "// Set the content type to audio wave\nvar wavFileName=msg.text_to_say.replace(' ','_');\nif(wavFileName.length>32) {\n    wavFileName=wavFileName.substr(0,32);\n}\nvar attch='attachment; filename='+encodeURIComponent(wavFileName+'.wav');\nmsg.headers={ 'Content-Type': 'audio/wav',\n              'Content-Disposition': attch};\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 990,
+        "y": 600,
+        "wires": [
+            [
+                "5cbf2b02.b77594"
+            ]
+        ]
+    },
+    {
+        "id": "bd5c6b15.5e3928",
+        "type": "function",
+        "z": "d483fd97.3aae6",
+        "name": "Get temperature",
+        "func": "msg.payload = JSON.stringify(global.get('tempValue')) \nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 320,
+        "y": 520,
+        "wires": [
+            [
+                "b27c60dc.921b"
+            ]
+        ]
+    }
+]
